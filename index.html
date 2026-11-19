@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Planejamento Financeiro</title>
+<style>
+:root{
+ --bg:#f3f6f8;--card:#fff;--ink:#1f2d3a;--muted:#647381;--line:#dce4e9;
+ --primary:#245b78;--primary-dark:#19445c;--green:#16734b;--green-bg:#edf7f1;
+ --blue-bg:#edf4f8;--amber:#fff7e8;--amber-line:#ead39b;--shadow:0 8px 28px #1b34440d
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,Arial,Helvetica,sans-serif}
+header{background:linear-gradient(135deg,#1e4359,#2d6d83);color:#fff;padding:34px 20px 38px;text-align:center}
+header h1{font-size:clamp(24px,4vw,34px);margin:0 0 7px;letter-spacing:.2px}
+header p{margin:0;color:#e0edf2}
+.wrap{width:min(1050px,calc(100% - 30px));margin:26px auto 50px}
+.intro{color:var(--muted);margin:0 0 20px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:23px;box-shadow:var(--shadow)}
+.card h2{font-size:20px;margin:0 0 5px}
+.desc{color:var(--muted);font-size:13px;margin:0 0 20px;min-height:40px}
+.part{display:inline-flex;align-items:center;gap:7px;color:var(--primary);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;margin-bottom:9px}
+.part b{display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:var(--blue-bg)}
+label{display:block;font-weight:700;font-size:13px;margin:0 0 7px}
+.input-wrap{display:flex;align-items:center;border:1px solid #bdcbd4;border-radius:9px;overflow:hidden;background:#fff}
+.input-wrap span{padding:12px 12px;background:#f4f7f9;color:#536675;border-right:1px solid var(--line);font-weight:700}
+input{width:100%;min-width:0;border:0;outline:0;padding:13px 12px;font:600 17px Arial;color:var(--ink);background:transparent}
+input:focus{box-shadow:inset 0 0 0 2px #6c9eb7}
+.hint{font-size:12px;color:var(--muted);margin:7px 0 16px}
+button{border:0;border-radius:9px;padding:12px 16px;background:var(--primary);color:#fff;font-weight:700;cursor:pointer;font-size:14px}
+button:hover{background:var(--primary-dark)}
+button.secondary{background:#eaf0f4;color:#304858}
+button.secondary:hover{background:#dce7ed}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin:15px 0 0}
+.results{border-top:1px solid var(--line);margin-top:20px;padding-top:17px}
+.results h3{font-size:14px;margin:0 0 12px}
+.rows{display:grid;gap:0}
+.row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #edf1f3;font-size:13px}
+.row span:first-child{color:var(--muted)}
+.row strong{text-align:right;font-variant-numeric:tabular-nums}
+.row.total{border:0;background:var(--green-bg);padding:13px 12px;border-radius:9px;margin-top:10px;font-size:14px}
+.row.total span:first-child{color:#315d49;font-weight:700}
+.row.total strong{color:var(--green);font-size:19px}
+.callout{margin-top:14px;background:var(--blue-bg);border-radius:9px;padding:12px;font-size:12px;color:#38576a}
+.callout strong{color:#244c63}
+.summary{margin-top:20px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+.summary h2{margin:0 0 14px;font-size:18px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.metric{background:#f6f8f9;border:1px solid #e8edf0;border-radius:9px;padding:13px}
+.metric span{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+.metric strong{font-size:16px;font-variant-numeric:tabular-nums}
+.rules{margin-top:20px;background:var(--amber);border:1px solid var(--amber-line);border-radius:12px;padding:16px 18px}
+.rules h3{margin:0 0 8px;font-size:15px}
+.rules ul{margin:0;padding-left:19px;color:#5e563f;font-size:13px}
+.rules li{margin:4px 0}
+footer{text-align:center;color:#82909a;font-size:12px;margin:22px 0}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.desc{min-height:0}.metrics{grid-template-columns:1fr 1fr}.card{padding:19px}}
+@media(max-width:390px){.metrics{grid-template-columns:1fr}.wrap{width:calc(100% - 20px)}}
+@media print{body{background:#fff}header{background:#fff;color:#1f2d3a;padding:15px}header p{color:#647381}.wrap{width:100%;margin:10px auto}.card,.summary{box-shadow:none;break-inside:avoid}.grid{gap:10px}.actions{display:none}}
+</style>
+</head>
+<body>
+<header>
+ <h1>Calculadora de Planejamento Financeiro</h1>
+ <p>Simule o rendimento, a retenção, o saque e a taxa de saque</p>
+</header>
+<main class="wrap">
+ <p class="intro">Informe os valores em dólares (US$). Os resultados serão exibidos em dólares e, entre parênteses, em reais (R$). A calculadora aplica as regras da simulação: rendimento mensal de 12,5% sobre o aporte, retenção de 40% do rendimento, saque de 60% e taxa de saque de 10% sobre o valor bruto sacado.</p>
+ <section class="card" style="margin-bottom:20px">
+  <h2>Cotação manual do dólar</h2>
+  <p class="desc" style="min-height:0;margin-bottom:12px">Informe quanto vale 1 dólar em reais. Todos os resultados em reais mostrarão também o equivalente em dólares.</p>
+  <label for="cotacaoDolar">Cotação de 1 USD em BRL</label>
+  <div class="input-wrap"><span>R$</span><input id="cotacaoDolar" inputmode="decimal" autocomplete="off" placeholder="Ex.: 5,80"></div>
+  <p class="hint" id="cotacaoStatus">Digite a cotação para ativar a conversão em dólar. A cotação fica salva neste navegador.</p>
+ </section>
+ <section class="grid">
+  <article class="card">
+   <div class="part"><b>1</b> Cálculo a partir do aporte</div>
+   <h2>Quanto devo sacar do meu aporte?</h2>
+   <p class="desc">Informe o aporte em dólares. A calculadora estima o rendimento mensal e separa automaticamente a parte retida e o valor destinado ao saque.</p>
+   <label for="aporte">Valor do aporte em dólares</label>
+   <div class="input-wrap"><span>US$</span><input id="aporte" inputmode="decimal" autocomplete="off" placeholder="Ex.: 1.000,00"></div>
+   <p class="hint">Exemplo: US$ 1.000,00 gera US$ 125,00 de rendimento simulado a 12,5%.</p>
+   <div class="actions">
+    <button type="button" id="calcularAporte">Calcular aporte</button>
+    <button type="button" class="secondary" id="limparAporte">Limpar</button>
+   </div>
+   <div class="results" aria-live="polite">
+    <h3>Resultado da simulação mensal</h3>
+    <div class="rows">
+     <div class="row"><span>Aporte informado</span><strong id="aBase">R$ 0,00</strong></div>
+     <div class="row"><span>Rendimento total (12,5%)</span><strong id="aRendimento">R$ 0,00</strong></div>
+     <div class="row"><span>Valor retido (40% do rendimento / 5% do aporte)</span><strong id="aRetido">R$ 0,00</strong></div>
+     <div class="row"><span>Saque bruto (60% do rendimento / 7,5% do aporte)</span><strong id="aBruto">R$ 0,00</strong></div>
+     <div class="row"><span>Taxa de saque (10% do saque bruto)</span><strong id="aTaxa">R$ 0,00</strong></div>
+     <div class="row total"><span>Valor líquido a receber</span><strong id="aLiquido">R$ 0,00</strong></div>
+    </div>
+    <div class="callout" id="aRecuperacao">A retenção mensal equivale a 5% do aporte. Em 20 meses, 20 retenções iguais somariam o valor do aporte inicial.</div>
+   </div>
+  </article>
+
+  <article class="card">
+   <div class="part"><b>2</b> Cálculo a partir do valor disponível</div>
+   <h2>Quanto devo sacar do saldo disponível?</h2>
+   <p class="desc">Informe o saldo disponível em reais. A calculadora separa 60% para saque e mantém 40% retidos.</p>
+   <label for="disponivel">Valor total disponível em reais</label>
+   <div class="input-wrap"><span>R$</span><input id="disponivel" inputmode="decimal" autocomplete="off" placeholder="Ex.: 125,00"></div>
+   <p class="hint">Exemplo: de R$ 125,00 disponíveis, R$ 75,00 são destinados ao saque bruto e R$ 50,00 ficam retidos.</p>
+   <div class="actions">
+    <button type="button" id="calcularDisponivel">Calcular divisão</button>
+    <button type="button" class="secondary" id="limparDisponivel">Limpar</button>
+   </div>
+   <div class="results" aria-live="polite">
+    <h3>Resultado da divisão</h3>
+    <div class="rows">
+     <div class="row"><span>Valor disponível informado</span><strong id="dBase">R$ 0,00</strong></div>
+     <div class="row"><span>Parte retida (40%)</span><strong id="dRetido">R$ 0,00</strong></div>
+     <div class="row"><span>Saque bruto (60%)</span><strong id="dBruto">R$ 0,00</strong></div>
+     <div class="row"><span>Taxa de saque (10% do saque bruto)</span><strong id="dTaxa">R$ 0,00</strong></div>
+     <div class="row total"><span>Valor líquido a receber</span><strong id="dLiquido">R$ 0,00</strong></div>
+    </div>
+    <div class="callout">A taxa de 10% é calculada somente sobre os 60% destinados ao saque. Ela não reduz os 40% retidos.</div>
+   </div>
+  </article>
+ </section>
+
+ <section class="summary">
+  <h2>Resumo das regras utilizadas</h2>
+  <div class="metrics">
+   <div class="metric"><span>Rendimento simulado</span><strong>12,5%</strong></div>
+   <div class="metric"><span>Retenção do rendimento</span><strong>40% (5% do aporte)</strong></div>
+   <div class="metric"><span>Parcela para saque</span><strong>60% (7,5% do aporte)</strong></div>
+   <div class="metric"><span>Taxa sobre o saque bruto</span><strong>10%</strong></div>
+  </div>
+ </section>
+
+ <section class="rules">
+  <h3>Como funciona a regra dos 20 meses</h3>
+  <ul>
+   <li>Os 40% retidos do rendimento de 12,5% equivalem a 5% do aporte original.</li>
+   <li>Se o valor do aporte usado como base permanecer igual, 5% × 20 meses = 100% do aporte inicial acumulado em retenções.</li>
+   <li>O valor líquido recebido é o saque bruto menos a taxa de saque de 10%.</li>
+  </ul>
+ </section>
+ <div class="rules">
+  <h3>Atenção</h3>
+  <ul>
+   <li>Esta ferramenta é uma simulação matemática baseada nos percentuais informados, não uma garantia de rendimento.</li>
+   <li>Ela não verifica a existência, a segurança ou a legitimidade de uma aplicação. Antes de transferir dinheiro, confirme as condições, os riscos, as taxas e a autorização da instituição responsável.</li>
+  </ul>
+ </div>
+ <footer>Calculadora de planejamento financeiro • Os cálculos são feitos localmente no navegador.</footer>
+</main>
+<script>
+(() => {
+ const fmtBRL = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
+ const fmtUSD = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'USD'});
+ const pct = { rendimento:0.125, retencao:0.40, saque:0.60, taxa:0.10 };
+ const el = id => document.getElementById(id);
+ function parseCotacao(value){
+   let s=(value||'').trim().replace(/[R$\s]/g,'');
+   if(s.includes(',')) s=s.replace(/\./g,'').replace(',','.');
+   const n=Number(s); return Number.isFinite(n)&&n>0?n:0;
+ }
+ function cotacao(){ return parseCotacao(el('cotacaoDolar').value); }
+ function formatDual(value){ const rate=cotacao(); return rate>0 ? `${fmtUSD.format(value)} (${fmtBRL.format(value*rate)})` : fmtUSD.format(value); }
+ function refreshDisplayedValues(){
+   const rate=cotacao();
+   el('cotacaoStatus').textContent=rate>0 ? `Conversão ativa: US$ 1,00 = ${fmtBRL.format(rate)}. Cotação salva neste navegador.` : 'Digite a cotação para ativar a conversão em dólar. A cotação fica salva neste navegador.';
+   if(el('aporte').value.trim()) calcularAporte();
+   if(el('disponivel').value.trim()) calcularDisponivel();
+ }
+
+
+ function parseBR(value){
+   if(typeof value !== 'string') return Number(value)||0;
+   let s=value.trim().replace(/[R$\s]/g,'');
+   if(!s) return 0;
+   if(s.includes(',')) s=s.replace(/\./g,'').replace(',','.');
+   const n=Number(s);
+   return Number.isFinite(n)&&n>0?n:0;
+ }
+ function money(id,value){el(id).textContent=formatDual(value);}
+  function moneyBRL(id,value){el(id).textContent=fmtBRL.format(value);}
+ function read(id){return parseBR(el(id).value);}
+
+ function calcularAporte(){
+   const base=read('aporte');
+   const rendimento=base*pct.rendimento;
+   const retido=rendimento*pct.retencao;
+   const bruto=rendimento*pct.saque;
+   const taxa=bruto*pct.taxa;
+   const liquido=bruto-taxa;
+   money('aBase',base); money('aRendimento',rendimento); money('aRetido',retido);
+   money('aBruto',bruto); money('aTaxa',taxa); money('aLiquido',liquido);
+   el('aRecuperacao').textContent=base>0
+     ? `A retenção mensal é ${formatDual(retido)} (5% do aporte). Mantida essa mesma retenção por 20 meses, o acumulado será ${formatDual(retido*20)}, equivalente ao aporte inicial de ${formatDual(base)}.`
+     : 'Informe um aporte para visualizar a projeção de retenção em 20 meses.';
+ }
+ function calcularDisponivel(){
+   const base=read('disponivel');
+   const retido=base*pct.retencao;
+   const bruto=base*pct.saque;
+   const taxa=bruto*pct.taxa;
+   const liquido=bruto-taxa;
+   moneyBRL('dBase',base); moneyBRL('dRetido',retido); moneyBRL('dBruto',bruto);
+   moneyBRL('dTaxa',taxa); moneyBRL('dLiquido',liquido);
+ }
+ function limpar(prefix,input){
+   el(input).value='';
+   const ids=prefix==='a'?['aBase','aRendimento','aRetido','aBruto','aTaxa','aLiquido']:['dBase','dRetido','dBruto','dTaxa','dLiquido'];
+   ids.forEach(id=>prefix==='d'?moneyBRL(id,0):money(id,0));
+   if(prefix==='a') el('aRecuperacao').textContent='A retenção mensal equivale a 5% do aporte. Em 20 meses, 20 retenções iguais somariam o valor do aporte inicial.';
+ }
+ el('calcularAporte').addEventListener('click',calcularAporte);
+ el('calcularDisponivel').addEventListener('click',calcularDisponivel);
+ el('limparAporte').addEventListener('click',()=>limpar('a','aporte'));
+ el('limparDisponivel').addEventListener('click',()=>limpar('d','disponivel'));
+ el('aporte').addEventListener('keydown',e=>{if(e.key==='Enter')calcularAporte()});
+ el('disponivel').addEventListener('keydown',e=>{if(e.key==='Enter')calcularDisponivel()});
+ // Atualiza os resultados enquanto o usuário digita, sem exigir clique.
+ el('aporte').addEventListener('input',calcularAporte);
+ el('disponivel').addEventListener('input',calcularDisponivel);
+ const savedRate=localStorage.getItem('cotacaoDolarManual');
+ if(savedRate) el('cotacaoDolar').value=savedRate;
+ el('cotacaoDolar').addEventListener('input',()=>{
+   localStorage.setItem('cotacaoDolarManual',el('cotacaoDolar').value);
+   refreshDisplayedValues();
+ });
+ refreshDisplayedValues();
+})();
+</script>
+</body>
+</html>
